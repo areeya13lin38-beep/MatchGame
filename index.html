@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>เกมจับคู่ความสัมพันธ์</title>
+  <style>
+    body {
+      font-family: "Sarabun", system-ui, sans-serif;
+      text-align: center;
+      background: linear-gradient(to bottom, #fff8fc, #eef8ff);
+      margin: 0;
+      padding: 20px;
+      color: #2f2f2f;
+    }
+
+    h1 {
+      margin: 8px 0 16px;
+      color: #7a4ca1;
+      font-size: 2.15rem;
+      line-height: 1.3;
+    }
+
+    .top-panel {
+      max-width: 1120px;
+      margin: 0 auto 20px;
+      background: #ffffff;
+      border-radius: 24px;
+      padding: 22px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+      border: 2px solid #f0e4fb;
+    }
+
+    .player-row {
+      display: flex;
+      justify-content: center;
+      gap: 14px;
+      flex-wrap: wrap;
+      margin-bottom: 14px;
+    }
+
+    .field-box {
+      background: #f8f2ff;
+      border-radius: 16px;
+      padding: 12px 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 1.05rem;
+      font-weight: 700;
+    }
+
+    .field-box input {
+      font-family: inherit;
+      font-size: 1rem;
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 2px solid #decaf3;
+      outline: none;
+      min-width: 180px;
+    }
+
+    .field-box input:focus {
+      border-color: #b786e5;
+    }
+
+    .section-title {
+      font-size: 1.12rem;
+      font-weight: 700;
+      color: #6f4592;
+      margin: 12px 0 12px;
+    }
+
+    .button-row {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+    }
+
+    .btn {
+      border: none;
+      border-radius: 18px;
+      padding: 16px 26px;
+      font-size: 1.12rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.18s ease, background 0.18s ease;
+      background: #ecdefa;
+      color: #5c3577;
+      min-width: 150px;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.08);
+    }
+
+    .btn:hover { transform: scale(1.03); }
+
+    .btn.active {
+      background: #b786e5;
+      color: white;
+    }
+
+    .restart-btn {
+      background: #a8defe;
+      color: #184f76;
+    }
+
+    .info-bar {
+      display: flex;
+      justify-content: center;
+      gap: 14px;
+      flex-wrap: wrap;
+      margin-top: 12px;
+    }
+
+    .info-box {
+      background: #f8f2ff;
+      border-radius: 18px;
+      padding: 14px 20px;
+      min-width: 175px;
+      font-size: 1.12rem;
+      font-weight: 700;
+      box-shadow: inset 0 0 0 1px rgba(123,76,160,0.08);
+    }
+
+    .message {
+      font-size: 1.22rem;
+      font-weight: 700;
+      color: #7a4ca1;
+      min-height: 34px;
+      margin-top: 16px;
+      line-height: 1.55;
+    }
+
+    .footer-note {
+      margin-top: 10px;
+      font-size: 1rem;
+      color: #666;
+      line-height: 1.5;
+    }
+
+    .game-board {
+      display: grid;
+      gap: 16px;
+      justify-content: center;
+      margin: 24px auto;
+      max-width: 1220px;
+    }
+
+    .card {
+      background: linear-gradient(135deg, #9370cc, #b08ce8);
+      border-radius: 24px;
+      cursor: pointer;
+      user-select: none;
+      box-shadow: 0 6px 14px rgba(0,0,0,0.12);
+      transition: transform 0.18s ease, background 0.18s ease;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      border: 3px solid #ffffff;
+    }
+
+    .card:hover { transform: scale(1.02); }
+
+    .card-back, .card-front {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .card-back {
+      color: white;
+      font-size: 3.1rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, #8f6bca, #b48fe7);
+    }
+
+    .card-front {
+      display: none;
+      background: #ffffff;
+      flex-direction: column;
+      gap: 6px;
+      padding: 10px;
+      box-sizing: border-box;
+    }
+
+    .emoji {
+      font-size: 4rem;
+      line-height: 1;
+    }
+
+    .label {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #5a3a73;
+      line-height: 1.25;
+    }
+
+    .card.flipped .card-back,
+    .card.matched .card-back {
+      display: none;
+    }
+
+    .card.flipped .card-front,
+    .card.matched .card-front {
+      display: flex;
+    }
+
+    .card.matched {
+      background: #d9f2dc;
+      cursor: default;
+      box-shadow: 0 6px 14px rgba(66, 145, 78, 0.20);
+    }
+
+    .card.matched .card-front {
+      background: #f4fff5;
+    }
+
+    @media (max-width: 900px) {
+      h1 { font-size: 1.85rem; }
+      .btn { min-width: 118px; padding: 14px 18px; font-size: 1rem; }
+      .info-box { min-width: 145px; font-size: 1rem; }
+      .card-back { font-size: 2.7rem; }
+      .emoji { font-size: 3.5rem; }
+      .label { font-size: 0.95rem; }
+    }
+
+    @media (max-width: 600px) {
+      body { padding: 14px; }
+      .top-panel { padding: 16px; }
+      h1 { font-size: 1.55rem; }
+      .btn {
+        min-width: 96px;
+        padding: 12px 14px;
+        font-size: 0.92rem;
+        border-radius: 16px;
+      }
+      .info-box {
+        min-width: 130px;
+        padding: 12px 14px;
+        font-size: 0.93rem;
+      }
+      .field-box {
+        width: 100%;
+        justify-content: center;
+      }
+      .field-box input {
+        min-width: 140px;
+        width: 58%;
+      }
+      .message { font-size: 1.03rem; }
+      .card-back { font-size: 2.2rem; }
+      .emoji { font-size: 3rem; }
+      .label { font-size: 0.86rem; }
+    }
+  </style>
+</head>
+<body>
+  <h1>🧠 เกมจับคู่ความสัมพันธ์</h1>
+
+  <div class="top-panel">
+    <div class="player-row">
+      <div class="field-box">
+        <label for="playerName">ชื่อ</label>
+        <input type="text" id="playerName" placeholder="กรอกชื่อผู้เล่น">
+      </div>
+      <div class="field-box">
+        <label for="playDate">วันที่</label>
+        <input type="date" id="playDate">
+      </div>
+    </div>
+
+    <div class="section-title">เลือกระดับ</div>
+    <div class="button-row" id="levelButtons">
+      <button class="btn active" data-level="easy">ง่าย</button>
+      <button class="btn" data-level="medium">ปานกลาง</button>
+      <button class="btn" data-level="hard">ยาก</button>
+    </div>
+
+    <div class="section-title">เลือกหมวดความสัมพันธ์</div>
+    <div class="button-row" id="categoryButtons">
+      <button class="btn active" data-category="jobs">อาชีพกับอุปกรณ์</button>
+      <button class="btn" data-category="pairs">ของที่ใช้คู่กัน</button>
+      <button class="btn" data-category="dailyLife">ของใช้ในชีวิตประจำวัน</button>
+      <button class="btn restart-btn" id="restartBtn">เริ่มเกมใหม่</button>
+    </div>
+
+    <div class="info-bar">
+      <div class="info-box">⏱️ เวลา: <span id="timer">0</span> วินาที</div>
+      <div class="info-box">✅ คู่ที่จับได้: <span id="matchedCount">0</span></div>
+      <div class="info-box">❌ เปิดผิด: <span id="wrongCount">0</span> ครั้ง</div>
+    </div>
+
+    <div class="message" id="message">เปิดทีละ 2 ใบ แล้วจับคู่สิ่งที่สัมพันธ์กันให้ถูกต้องค่ะ</div>
+    <div class="footer-note">ตัวอย่าง: ตำรวจกับปืน • หมอกับหูฟัง • พยาบาลกับเข็มฉีดยา</div>
+  </div>
+
+  <div class="game-board" id="gameBoard"></div>
+
+  <script>
+    const categories = {
+      jobs: [
+        [{ emoji: "👮", text: "ตำรวจ", pairId: "police" }, { emoji: "🔫", text: "ปืน", pairId: "police" }],
+        [{ emoji: "👨‍⚕️", text: "หมอ", pairId: "doctor" }, { emoji: "🩺", text: "หูฟังแพทย์", pairId: "doctor" }],
+        [{ emoji: "👩‍⚕️", text: "พยาบาล", pairId: "nurse" }, { emoji: "💉", text: "เข็มฉีดยา", pairId: "nurse" }],
+        [{ emoji: "👨‍🍳", text: "พ่อครัว", pairId: "chef" }, { emoji: "🍳", text: "กระทะ", pairId: "chef" }],
+        [{ emoji: "👨‍🏫", text: "ครู", pairId: "teacher" }, { emoji: "📚", text: "หนังสือ", pairId: "teacher" }],
+        [{ emoji: "👨‍🌾", text: "ชาวนา", pairId: "farmer" }, { emoji: "🪓", text: "เคียว", pairId: "farmer" }],
+        [{ emoji: "👨‍🚒", text: "นักดับเพลิง", pairId: "firefighter" }, { emoji: "🧯", text: "ถังดับเพลิง", pairId: "firefighter" }],
+        [{ emoji: "👷", text: "ช่างก่อสร้าง", pairId: "builder" }, { emoji: "🔨", text: "ค้อน", pairId: "builder" }]
+      ],
+      pairs: [
+        [{ emoji: "🦷", text: "ฟัน", pairId: "toothbrush" }, { emoji: "🪥", text: "แปรงสีฟัน", pairId: "toothbrush" }],
+        [{ emoji: "🥄", text: "ช้อน", pairId: "cutlery" }, { emoji: "🍴", text: "ส้อม", pairId: "cutlery" }],
+        [{ emoji: "✉️", text: "จดหมาย", pairId: "mailbox" }, { emoji: "📮", text: "ตู้ไปรษณีย์", pairId: "mailbox" }],
+        [{ emoji: "🌧️", text: "ฝน", pairId: "umbrella" }, { emoji: "☂️", text: "ร่ม", pairId: "umbrella" }],
+        [{ emoji: "🔒", text: "กุญแจล็อก", pairId: "key" }, { emoji: "🔑", text: "กุญแจ", pairId: "key" }],
+        [{ emoji: "😴", text: "การนอน", pairId: "bed" }, { emoji: "🛏️", text: "เตียง", pairId: "bed" }],
+        [{ emoji: "🕯️", text: "เทียน", pairId: "match" }, { emoji: "🔥", text: "ไฟ", pairId: "match" }],
+        [{ emoji: "📱", text: "โทรศัพท์", pairId: "charger" }, { emoji: "🔌", text: "ที่ชาร์จ", pairId: "charger" }]
+      ],
+      dailyLife: [
+        [{ emoji: "☀️", text: "แดด", pairId: "sunhat" }, { emoji: "👒", text: "หมวก", pairId: "sunhat" }],
+        [{ emoji: "🌧️", text: "ฝน", pairId: "umbrella" }, { emoji: "☂️", text: "ร่ม", pairId: "umbrella" }],
+        [{ emoji: "🍚", text: "ข้าว", pairId: "spoon" }, { emoji: "🥄", text: "ช้อน", pairId: "spoon" }],
+        [{ emoji: "🍜", text: "ก๋วยเตี๋ยว", pairId: "chopsticks" }, { emoji: "🥢", text: "ตะเกียบ", pairId: "chopsticks" }],
+        [{ emoji: "🚿", text: "อาบน้ำ", pairId: "soap" }, { emoji: "🧼", text: "สบู่", pairId: "soap" }],
+        [{ emoji: "👕", text: "เสื้อ", pairId: "hanger" }, { emoji: "🪝", text: "ไม้แขวนเสื้อ", pairId: "hanger" }],
+        [{ emoji: "🏍️", text: "รถจักรยานยนต์", pairId: "helmet" }, { emoji: "⛑️", text: "หมวกกันน็อก", pairId: "helmet" }],
+        [{ emoji: "🌾", text: "นา", pairId: "fertilizer" }, { emoji: "🧪", text: "ปุ๋ย", pairId: "fertilizer" }]
+      ]
+    };
+
+    const levelConfig = {
+      easy: { pairs: 4, columns: 4, size: 155 },
+      medium: { pairs: 6, columns: 4, size: 148 },
+      hard: { pairs: 8, columns: 4, size: 138 }
+    };
+
+    let currentLevel = "easy";
+    let currentCategory = "jobs";
+    let firstCard = null;
+    let secondCard = null;
+    let lockBoard = false;
+    let matchedPairs = 0;
+    let wrongCount = 0;
+    let timer = 0;
+    let timerInterval = null;
+    let gameStarted = false;
+
+    const board = document.getElementById("gameBoard");
+    const timerEl = document.getElementById("timer");
+    const matchedEl = document.getElementById("matchedCount");
+    const wrongEl = document.getElementById("wrongCount");
+    const messageEl = document.getElementById("message");
+    const playDateEl = document.getElementById("playDate");
+
+    if (playDateEl) {
+      const today = new Date().toISOString().split("T")[0];
+      playDateEl.value = today;
+    }
+
+    function shuffle(array) {
+      const arr = [...array];
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr;
+    }
+
+    function setActiveButton(groupId, attrName, value) {
+      document.querySelectorAll(`#${groupId} .btn`).forEach(btn => {
+        btn.classList.toggle("active", btn.dataset[attrName] === value);
+      });
+    }
+
+    function startTimer() {
+      if (gameStarted) return;
+      gameStarted = true;
+      timerInterval = setInterval(() => {
+        timer++;
+        timerEl.textContent = timer;
+      }, 1000);
+    }
+
+    function resetTurn() {
+      firstCard = null;
+      secondCard = null;
+      lockBoard = false;
+    }
+
+    function playCorrectSound() {
+      const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = "triangle";
+      osc.frequency.setValueAtTime(720, audioCtx.currentTime);
+      osc.frequency.linearRampToValueAtTime(980, audioCtx.currentTime + 0.10);
+      gain.gain.setValueAtTime(0.14, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.22);
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start();
+      osc.stop(audioCtx.currentTime + 0.22);
+    }
+
+    function playWrongSound() {
+      const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = "sawtooth";
+      osc.frequency.setValueAtTime(250, audioCtx.currentTime);
+      osc.frequency.linearRampToValueAtTime(180, audioCtx.currentTime + 0.12);
+      gain.gain.setValueAtTime(0.10, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.24);
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start();
+      osc.stop(audioCtx.currentTime + 0.24);
+    }
+
+    function createCard(item, size) {
+      const card = document.createElement("div");
+      card.className = "card";
+      card.dataset.pairId = item.pairId;
+      card.style.width = size + "px";
+      card.style.height = size + "px";
+      card.innerHTML = `
+        <div class="card-back">?</div>
+        <div class="card-front">
+          <div class="emoji">${item.emoji}</div>
+          <div class="label">${item.text}</div>
+        </div>
+      `;
+      card.addEventListener("click", flipCard);
+      return card;
+    }
+
+    function startGame() {
+      clearInterval(timerInterval);
+      timer = 0;
+      matchedPairs = 0;
+      wrongCount = 0;
+      gameStarted = false;
+      firstCard = null;
+      secondCard = null;
+      lockBoard = false;
+
+      timerEl.textContent = timer;
+      matchedEl.textContent = matchedPairs;
+      wrongEl.textContent = wrongCount;
+      messageEl.textContent = "เปิดทีละ 2 ใบ แล้วจับคู่สิ่งที่สัมพันธ์กันให้ถูกต้องค่ะ";
+
+      const config = levelConfig[currentLevel];
+      const selectedPairs = categories[currentCategory].slice(0, config.pairs);
+      const deck = shuffle(selectedPairs.flat());
+
+      board.innerHTML = "";
+      board.style.gridTemplateColumns = `repeat(${config.columns}, ${config.size}px)`;
+
+      deck.forEach(item => {
+        board.appendChild(createCard(item, config.size));
+      });
+    }
+
+    function flipCard() {
+      if (lockBoard) return;
+      if (this === firstCard) return;
+      if (this.classList.contains("matched")) return;
+      if (this.classList.contains("flipped")) return;
+
+      startTimer();
+      this.classList.add("flipped");
+
+      if (!firstCard) {
+        firstCard = this;
+        return;
+      }
+
+      secondCard = this;
+      lockBoard = true;
+
+      if (firstCard.dataset.pairId === secondCard.dataset.pairId) {
+        playCorrectSound();
+        firstCard.classList.add("matched");
+        secondCard.classList.add("matched");
+        matchedPairs++;
+        matchedEl.textContent = matchedPairs;
+        messageEl.textContent = "จับคู่ความสัมพันธ์ถูกต้องค่ะ 🎉";
+        resetTurn();
+
+        if (matchedPairs === levelConfig[currentLevel].pairs) {
+          clearInterval(timerInterval);
+          const playerName = document.getElementById("playerName").value.trim();
+          const nameText = playerName ? `คุณ ${playerName} ` : "";
+          messageEl.textContent = `${nameText}เก่งมากค่ะ 🎊 ใช้เวลา ${timer} วินาที และเปิดผิด ${wrongCount} ครั้ง`;
+        }
+      } else {
+        playWrongSound();
+        wrongCount++;
+        wrongEl.textContent = wrongCount;
+        messageEl.textContent = "คู่นี้ยังไม่สัมพันธ์กัน ลองใหม่นะคะ";
+
+        setTimeout(() => {
+          firstCard.classList.remove("flipped");
+          secondCard.classList.remove("flipped");
+          resetTurn();
+        }, 950);
+      }
+    }
+
+    document.getElementById("levelButtons").addEventListener("click", (e) => {
+      const btn = e.target.closest("button[data-level]");
+      if (!btn) return;
+      currentLevel = btn.dataset.level;
+      setActiveButton("levelButtons", "level", currentLevel);
+      startGame();
+    });
+
+    document.getElementById("categoryButtons").addEventListener("click", (e) => {
+      const btn = e.target.closest("button[data-category]");
+      if (!btn) return;
+      currentCategory = btn.dataset.category;
+      setActiveButton("categoryButtons", "category", currentCategory);
+      startGame();
+    });
+
+    document.getElementById("restartBtn").addEventListener("click", startGame);
+
+    startGame();
+  </script>
+</body>
+</html>
